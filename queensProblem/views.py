@@ -14,9 +14,34 @@ sys.setrecursionlimit(100000)
 def index(request):
     return HttpResponse("Hello world!!")
 
-#  Método que calcula la posición de n-reinas de forma determinística
-def DeterministicQueens(solution, phase, n, t):
+def QueensSimulation(n):
     
+    solucion = []
+    tnd = 0                #Tiempo algoritmo no deterministico
+    global td              #Tiempo deterministico
+    td = 0
+    for i in range(n):
+        solucion.append(0)
+    etapa = 0
+    DeterministicQueens(solucion, etapa, n)
+    
+
+    successNonDeterministic = False
+
+    while not successNonDeterministic:
+        tnd = tnd +1
+        solution2 = []
+        for i in range(n):
+            solution2.append(0)
+        phase2 = 0
+        successNonDeterministic = NonDeterministicQueens(solution2, phase2, n)
+    print tnd
+    
+
+#  Método que calcula la posición de n-reinas de forma determinística
+def DeterministicQueens(solution, phase, n):
+    
+    global td
     if phase>=n:
         return False
 
@@ -29,13 +54,17 @@ def DeterministicQueens(solution, phase, n, t):
             if (isValid(solution, phase)):
 
                 if phase != n-1:
-                    success = DeterministicQueens(solution, phase+1, n, t+1)
+                    success = DeterministicQueens(solution, phase+1, n)
                     if success==False:
+                        
                         solution[phase + 1] = 0
+                        td = td + 1
+                        
+
 
                 else:
                     print solution
-                    print t
+                    print td
                     success = True
             if (solution[phase]==n or success==True):
                 break
@@ -43,38 +72,30 @@ def DeterministicQueens(solution, phase, n, t):
 
 # Método que calcula la posición de n-reinas de forma no determinística
 # utilizando un algoritmo Las Vegas Tipo 2
-def NonDeterministicQueens(solution, phase, n, t):
+def NonDeterministicQueens(solution, phase, n):
 
-    if phase>=n:
-        return False
+    columns = []
+    solution = []
+    phase = 0
+    for i in range(n):
+        columns.append(i+1)
+        solution.append(0)
+    
+    print columns
 
-    t = t + 1
-    success = False   
+    for i in range(n):
+        index = random.randint(0, len(columns)-1)
+        solution[phase] = columns[index]
+        columns.pop(index)
 
-    while True:
-            
-            if (solution[phase] < n):
-                solution[phase] = random.randint(1, n)
-            print "Solucion y fase"
-            print solution, phase
-            print isValid(solution, phase)
-            if (isValid(solution, phase)):
+        print index, columns, solution, isValid(solution, phase), phase
 
-                if phase != n-1:
-                    success = NonDeterministicQueens(solution, phase+1, n, t)
-                    print solution, phase
+        if not isValid(solution, phase):
+            return False
 
-                else:
-                    print solution
-                    success = True
-            else:
-                return False
-                break
-
-            if (solution[phase]==n or success==True):
-                break
-      
-    return success
+        phase = phase + 1
+    
+    return solution
 
 
 def isValid(solution,phase):
@@ -92,22 +113,4 @@ def absVal(a, b):
 	else:
 		return b - a	
 
-
-print "PROBLEMA DE LAS N - REINAS"
-print "#"*26
-print "\n"
-print "Introduce el numero de reinas:\n"
-
-n = input()
-solucion = []
-for i in range(n):
-	solucion.append(0)
-etapa = 0
-t = 0
-print DeterministicQueens(solucion, etapa, n, t)
-
-solution2 = []
-for i in range(n):
-	solution2.append(0)
-phase2 = 0
-print NonDeterministicQueens(solution2, phase2, n, t)
+QueensSimulation(8)
