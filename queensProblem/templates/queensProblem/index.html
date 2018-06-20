@@ -6,11 +6,74 @@
         <link href="{% static "queensProblem/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
     </head>
 
-<h1>Hello world!</h1>
+    <body>
+        <div class="jumbotron text-center">
+            <h1>Simulador N-Reinas</h1>
+            <p>Simulación computacional</p> 
+        </div>
 
-<div class="col-sm-4 col-sm-offset-4">Testing</div>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-4">
+                    <h3>Variables de entrada</h3>
+                    <hr>
+                    <form class="form-horizontal" action="">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label class="control-label col-sm-8" for="input-queens">Cantidad de reinas</label>
+                            <div class="col-sm-4">
+                                <input type="number" class="form-control" id="input-queens" placeholder="n">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-8" for="input-challengers">Cantidad de retadores</label>
+                            <div class="col-sm-4">
+                                <input type="number" class="form-control" id="input-challengers" placeholder="r">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-8" for="input-arrival-rate">Tasa de llegada retadores</label>
+                            <div class="col-sm-4">
+                                <input type="number" class="form-control" id="input-arrival-rate" placeholder="tl">
+                            </div>
+                        </div>
+                        <div class="form-group"> 
+                            <div class="col-sm-offset-8 col-sm-4">
+                                <button type="button" class="btn btn-primary col-sm-12" id="start-button">Iniciar</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
 
+    <!-- All that javascript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="{% static "queensProblem/bootstrap/js/bootstrap.min.js" %}"></script>
 
-<!-- All that javascript -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-<script src="{% static "queensProblem/bootstrap/js/bootstrap.min.js" %}"></script>
+    {% block javascript %}
+    <script>
+        $("#start-button").on('click', function(){
+
+            var n_queens = $("#input-queens").val();
+            var n_challengers = $("#input-challengers").val();
+            var arrival_rate = $("#input-arrival-rate").val();
+
+            $.ajax({
+                url: 'ajax/start_simulation/',
+                data: {
+                    'n_queens': n_queens,
+                    'n_challengers': n_challengers,
+                    'arrival_rate': arrival_rate,
+                },
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data)
+                }
+            });
+        });
+    </script>
+    {% endblock %}
+
+</html>

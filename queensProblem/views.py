@@ -15,7 +15,11 @@ sys.setrecursionlimit(100000)
 def index(request):
     return render(request, 'queensProblem/index.html')
 
-def QueensSimulation(n):
+def QueensSimulation(request):
+    
+    n = int(request.GET.get('n_queens', None))
+    r = int(request.GET.get('n_challengers', None))
+    arrival_rate = int(request.GET.get('arrival_rate', None))
     
     solucion = []
     tnd = 0                #Tiempo algoritmo no deterministico
@@ -25,7 +29,6 @@ def QueensSimulation(n):
         solucion.append(0)
     etapa = 0
     DeterministicQueens(solucion, etapa, n)
-    
 
     successNonDeterministic = False
 
@@ -114,4 +117,3 @@ def absVal(a, b):
 	else:
 		return b - a	
 
-QueensSimulation(8)
