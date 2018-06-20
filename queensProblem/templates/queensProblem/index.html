@@ -4,6 +4,7 @@
 <html lang="en">
     <head>
         <link href="{% static "queensProblem/bootstrap/css/bootstrap.min.css" %}" rel="stylesheet">
+        <link href="{% static "queensProblem/datatables/datatables.min.css" %}" rel="stylesheet">
     </head>
 
     <body>
@@ -14,7 +15,7 @@
 
         <div class="container">
             <div class="row">
-                <div class="col-sm-4">
+                <div class="col-sm-4" id="input_var">
                     <h3>Variables de entrada</h3>
                     <hr>
                     <form class="form-horizontal" action="">
@@ -44,6 +45,12 @@
                         </div>
                     </form>
                 </div>
+
+                <div class="col-sm-8" id="div_table_result">
+                    <table id="table_result">
+
+                    </table>
+                </div>
             </div>
         </div>
     </body>
@@ -51,6 +58,7 @@
     <!-- All that javascript -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="{% static "queensProblem/bootstrap/js/bootstrap.min.js" %}"></script>
+    <script src="{% static "queensProblem/datatables/datatables.min.js" %}"></script>
 
     {% block javascript %}
     <script>
@@ -69,6 +77,13 @@
                 },
                 dataType: 'json',
                 success: function (data) {
+
+                    
+
+                    $("#div_table_result").html('');
+                    $("#div_table_result").fadeIn(1000).append('<table id="table_result" class="display" cellspacing="0" width="100%"><thead> </thead></table>');
+
+                    $("#table_result").DataTable(data);
                     console.log(data)
                 }
             });

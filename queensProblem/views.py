@@ -7,11 +7,10 @@ from django.shortcuts import render
 
 from random import randint, uniform,random
 
-import sys
 from datetime import datetime, date, time, timedelta
 import random
 import numpy as np
-sys.setrecursionlimit(100000)
+import json
 
 def index(request):
     return render(request, 'queensProblem/index.html')
@@ -21,24 +20,34 @@ def QueensSimulation(request):
     n = int(request.GET.get('n_queens', None))
     r = int(request.GET.get('n_challengers', None))
     arrival_rate = int(request.GET.get('arrival_rate', None))
+    matrixResult = []
 
     counter_r = 1
 
     while counter_r <= r:
         
+        result_challenger = {}
+        
         algorithm = SelectAlgorithm()
+        result_challenger['algorithm_type'] = algorithm
 
-        if algorithm == 'D':
+        if algorithm == "D":
             solucion = []
             
             global td              #Tiempo deterministico
+            global solutionDeterministic
             td = 0
+            solutionDeterministic = []
 
             for i in range(n):
                 solucion.append(0)
             etapa = 0
 
-            DeterministicQueens(solucion, etapa, n)
+            resultDeterministic = DeterministicQueens(solucion, etapa, n)
+            result_challenger['solution'] = solutionDeterministic
+            result_challenger['time'] = td
+            result_challenger['success'] = True
+            
         
         else:
             
@@ -51,18 +60,35 @@ def QueensSimulation(request):
                 for i in range(n):
                     solution2.append(0)
                 phase2 = 0
-                successNonDeterministic = NonDeterministicQueens(solution2, phase2, n)
+                resultNonDeterministic = NonDeterministicQueens(solution2, phase2, n)
+                successNonDeterministic = resultNonDeterministic['success']
+            result_challenger.update(resultNonDeterministic)
+            result_challenger['time'] = tnd
             print tnd
 
         print "Contador de retadores >> "
         print counter_r
 
+        
+
         counter_r = counter_r + 1
 
+        matrixResult.append(result_challenger)
+
+    print "Matriz de resultados >> "
+    print matrixResult
+
+    json_matrix = json.dumps(matrixResult)
+
+    return HttpResponse(json_matrix, content_type="application/json")
+
+#  Método que calcula la posición de n-reinas de forma determinística
 #  Método que calcula la posición de n-reinas de forma determinística
 def DeterministicQueens(solution, phase, n):
 
     global td
+    global solutionDeterministic
+
     if phase>=n:
         return False
 
@@ -80,13 +106,15 @@ def DeterministicQueens(solution, phase, n):
                         
                         solution[phase + 1] = 0
                         td = td + 1
-                        
+                         
                 else:
                     print "Solución Determinista >> "
                     print solution
+                    solutionDeterministic = solution
                     success = True
             if (solution[phase]==n or success==True):
                 break
+
     return success
 
 # Método que calcula la posición de n-reinas de forma no determinística
@@ -95,7 +123,10 @@ def NonDeterministicQueens(solution, phase, n):
 
     columns = []
     solution = []
+    result = {}
+    result['success'] = True
     phase = 0
+
     for i in range(n):
         columns.append(i+1)
         solution.append(0)
@@ -106,13 +137,18 @@ def NonDeterministicQueens(solution, phase, n):
         columns.pop(index)
 
         if not isValid(solution, phase):
-            return False
+            result['success'] = False
+            break
+            
         #print index, columns, solution, isValid(solution, phase), phase
         phase = phase + 1
     
     print "Solución no Determinista >> "
     print solution
-    return solution
+
+    result['solution'] = solution
+
+    return result
 
 
 def isValid(solution,phase):
@@ -132,9 +168,10 @@ def absVal(a, b):
 
 def SelectAlgorithm():
     prob = np.random.rand()
+    print prob
     if prob <= 0.5:
         return 'D'
     else:
         return 'P'
 
-SelectAlgorithm()
+
