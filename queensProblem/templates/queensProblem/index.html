@@ -78,12 +78,18 @@
                 dataType: 'json',
                 success: function (data) {
 
-                    
-
                     $("#div_table_result").html('');
                     $("#div_table_result").fadeIn(1000).append('<table id="table_result" class="display" cellspacing="0" width="100%"><thead> </thead></table>');
 
-                    $("#table_result").DataTable(data);
+                    $('#table_result').DataTable( {
+                        data: data,
+                        columns: [
+                            { title: "Tipo algoritmo", data:"algorithm_type"},
+                            { title: "Solución", data:"solution"},
+                            { title: "Éxito", data:"success"},
+                            { title: "Tiempo", data:"time"}
+                        ]
+                    });
                     console.log(data)
                 }
             });
