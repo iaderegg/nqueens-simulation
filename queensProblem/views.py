@@ -25,29 +25,39 @@ def QueensSimulation(request):
     counter_r = 1
 
     while counter_r <= r:
-    
-        solucion = []
-        tnd = 0                #Tiempo algoritmo no deterministico
-        global td              #Tiempo deterministico
-        td = 0
-        for i in range(n):
-            solucion.append(0)
-        etapa = 0
-        DeterministicQueens(solucion, etapa, n)
+        
+        algorithm = SelectAlgorithm()
 
-        successNonDeterministic = False
+        if algorithm == 'D':
+            solucion = []
+            
+            global td              #Tiempo deterministico
+            td = 0
 
-        while not successNonDeterministic:
-            tnd = tnd +1
-            solution2 = []
             for i in range(n):
-                solution2.append(0)
-            phase2 = 0
-            successNonDeterministic = NonDeterministicQueens(solution2, phase2, n)
-        print tnd
+                solucion.append(0)
+            etapa = 0
+
+            DeterministicQueens(solucion, etapa, n)
+        
+        else:
+            
+            successNonDeterministic = False
+            tnd = 0                #Tiempo algoritmo no deterministico
+
+            while not successNonDeterministic:
+                tnd = tnd +1
+                solution2 = []
+                for i in range(n):
+                    solution2.append(0)
+                phase2 = 0
+                successNonDeterministic = NonDeterministicQueens(solution2, phase2, n)
+            print tnd
+
+        print "Contador de retadores >> "
+        print counter_r
 
         counter_r = counter_r + 1
-    
 
 #  Método que calcula la posición de n-reinas de forma determinística
 def DeterministicQueens(solution, phase, n):
@@ -72,6 +82,7 @@ def DeterministicQueens(solution, phase, n):
                         td = td + 1
                         
                 else:
+                    print "Solución Determinista >> "
                     print solution
                     success = True
             if (solution[phase]==n or success==True):
@@ -96,11 +107,11 @@ def NonDeterministicQueens(solution, phase, n):
 
         if not isValid(solution, phase):
             return False
-        print index, columns, solution, isValid(solution, phase), phase
+        #print index, columns, solution, isValid(solution, phase), phase
         phase = phase + 1
     
-    
-    
+    print "Solución no Determinista >> "
+    print solution
     return solution
 
 
