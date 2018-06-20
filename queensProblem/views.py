@@ -11,6 +11,7 @@ from datetime import datetime, date, time, timedelta
 import random
 import numpy as np
 import json
+import math
 
 def index(request):
     return render(request, 'queensProblem/index.html')
@@ -20,16 +21,26 @@ def QueensSimulation(request):
     n = int(request.GET.get('n_queens', None))
     r = int(request.GET.get('n_challengers', None))
     arrival_rate = int(request.GET.get('arrival_rate', None))
+    desvest_arrival_rate = int(request.GET.get('desvest_arrival_rate', None))
     matrixResult = []
 
     counter_r = 0
 
-    while counter_r <= r:
+    while counter_r < r:
 
         counter_r = counter_r + 1
         
         result_challenger = {}
+
         result_challenger['challenger'] = counter_r
+
+        if counter_r == 1:
+            result_challenger['arrival_time'] = 0
+            result_challenger['inter_arrival_time'] = 0
+        else:
+            arrival_random = math.floor(np.random.normal(arrival_rate, desvest_arrival_rate))
+            result_challenger['inter_arrival_time'] = arrival_random
+            result_challenger['arrival_time'] = int(matrixResult[counter_r-2]['arrival_time']) + arrival_random
         
         algorithm = SelectAlgorithm()
         result_challenger['algorithm_type'] = algorithm
@@ -54,8 +65,10 @@ def QueensSimulation(request):
 
             if counter_r == 1:
                 result_challenger['exit_time'] = td
+                result_challenger['start_attention'] = 0
             else:
-                result_challenger['exit_time'] = int(matrixResult[counter_r-2]['exit_time']) + td
+                result_challenger['start_attention'] = int(matrixResult[counter_r-2]['exit_time']) + 1
+                result_challenger['exit_time'] = int(result_challenger['start_attention']) + td
         
         else:
             
@@ -75,8 +88,10 @@ def QueensSimulation(request):
 
             if counter_r == 1:
                 result_challenger['exit_time'] = tnd
+                result_challenger['start_attention'] = 0
             else:
-                result_challenger['exit_time'] = int(matrixResult[counter_r-2]['exit_time']) + tnd
+                result_challenger['start_attention'] = int(matrixResult[counter_r-2]['exit_time']) + 1
+                result_challenger['exit_time'] = int(result_challenger['start_attention']) + tnd
 
             print tnd
 

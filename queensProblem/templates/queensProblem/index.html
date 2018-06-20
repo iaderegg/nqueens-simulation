@@ -38,6 +38,12 @@
                                 <input type="number" class="form-control" id="input-arrival-rate" placeholder="tl">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="control-label col-sm-8" for="input-desvest-arrival-rate">Desviación tasa de llegada</label>
+                            <div class="col-sm-4">
+                                <input type="number" class="form-control" id="input-desvest-arrival-rate" placeholder="dtl">
+                            </div>
+                        </div>
                         <div class="form-group"> 
                             <div class="col-sm-offset-8 col-sm-4">
                                 <button type="button" class="btn btn-primary col-sm-12" id="start-button">Iniciar</button>
@@ -67,6 +73,7 @@
             var n_queens = $("#input-queens").val();
             var n_challengers = $("#input-challengers").val();
             var arrival_rate = $("#input-arrival-rate").val();
+            var desvest_arrival_rate = $("#input-desvest-arrival-rate").val();
 
             $.ajax({
                 url: 'ajax/start_simulation/',
@@ -74,6 +81,7 @@
                     'n_queens': n_queens,
                     'n_challengers': n_challengers,
                     'arrival_rate': arrival_rate,
+                    'desvest_arrival_rate': desvest_arrival_rate,
                 },
                 dataType: 'json',
                 success: function (data) {
@@ -85,10 +93,12 @@
                         data: data,
                         columns: [
                             { title: "C", data:"challenger"},
+                            { title: "Tiempo entre llegadas", data:"inter_arrival_time"},
                             { title: "Tiempo llegada", data:"arrival_time"},
                             { title: "Tipo algoritmo", data:"algorithm_type"},
                             { title: "Solución", data:"solution"},
                             { title: "Éxito", data:"success"},
+                            { title: "Inicio de atención", data:"start_attention"},
                             { title: "Tiempo de atención", data:"time"},
                             { title: "Tiempo de salida", data:"exit_time"}
 
