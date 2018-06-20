@@ -84,10 +84,14 @@
                     $('#table_result').DataTable( {
                         data: data,
                         columns: [
+                            { title: "C", data:"challenger"},
+                            { title: "Tiempo llegada", data:"arrival_time"},
                             { title: "Tipo algoritmo", data:"algorithm_type"},
                             { title: "Solución", data:"solution"},
                             { title: "Éxito", data:"success"},
-                            { title: "Tiempo", data:"time"}
+                            { title: "Tiempo de atención", data:"time"},
+                            { title: "Tiempo de salida", data:"exit_time"}
+
                         ]
                     });
                     console.log(data)

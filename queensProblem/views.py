@@ -16,17 +16,20 @@ def index(request):
     return render(request, 'queensProblem/index.html')
 
 def QueensSimulation(request):
-    
+
     n = int(request.GET.get('n_queens', None))
     r = int(request.GET.get('n_challengers', None))
     arrival_rate = int(request.GET.get('arrival_rate', None))
     matrixResult = []
 
-    counter_r = 1
+    counter_r = 0
 
     while counter_r <= r:
+
+        counter_r = counter_r + 1
         
         result_challenger = {}
+        result_challenger['challenger'] = counter_r
         
         algorithm = SelectAlgorithm()
         result_challenger['algorithm_type'] = algorithm
@@ -46,8 +49,13 @@ def QueensSimulation(request):
             resultDeterministic = DeterministicQueens(solucion, etapa, n)
             result_challenger['solution'] = solutionDeterministic
             result_challenger['time'] = td
+
             result_challenger['success'] = True
-            
+
+            if counter_r == 1:
+                result_challenger['exit_time'] = td
+            else:
+                result_challenger['exit_time'] = int(matrixResult[counter_r-2]['exit_time']) + td
         
         else:
             
@@ -64,16 +72,18 @@ def QueensSimulation(request):
                 successNonDeterministic = resultNonDeterministic['success']
             result_challenger.update(resultNonDeterministic)
             result_challenger['time'] = tnd
+
+            if counter_r == 1:
+                result_challenger['exit_time'] = tnd
+            else:
+                result_challenger['exit_time'] = int(matrixResult[counter_r-2]['exit_time']) + tnd
+
             print tnd
+
+        matrixResult.append(result_challenger)
 
         print "Contador de retadores >> "
         print counter_r
-
-        
-
-        counter_r = counter_r + 1
-
-        matrixResult.append(result_challenger)
 
     print "Matriz de resultados >> "
     print matrixResult
