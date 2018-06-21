@@ -23,11 +23,14 @@ def QueensSimulation(request):
     arrival_rate = int(request.GET.get('arrival_rate', None))
     desvest_arrival_rate = int(request.GET.get('desvest_arrival_rate', None))
     matrixResult = []
+    master_status = False  # Refleja si el maestro está ocupado o no
+
+    result_simulation = {}
 
     counter_r = 0
 
     while counter_r < r:
-
+        
         counter_r = counter_r + 1
         
         result_challenger = {}
@@ -45,10 +48,11 @@ def QueensSimulation(request):
         algorithm = SelectAlgorithm()
         result_challenger['algorithm_type'] = algorithm
 
+        # Si se escoge un algoritmo deterministico
         if algorithm == "D":
             solucion = []
             
-            global td              #Tiempo deterministico
+            global td              #Tiempo algoritmo deterministico
             global solutionDeterministic
             td = 0
             solutionDeterministic = []
@@ -66,10 +70,21 @@ def QueensSimulation(request):
             if counter_r == 1:
                 result_challenger['exit_time'] = td
                 result_challenger['start_attention'] = 0
+                result_challenger['waiting_time'] = 0
+                result_challenger['max_queue'] = 0
+
             else:
-                result_challenger['start_attention'] = int(matrixResult[counter_r-2]['exit_time']) + 1
+                start_attention = int(matrixResult[counter_r-2]['exit_time']) + 1
+
+                if start_attention < result_challenger['arrival_time']:
+                    result_challenger['start_attention'] = result_challenger['arrival_time']
+                else:
+                    result_challenger['start_attention'] = int(matrixResult[counter_r-2]['exit_time']) + 1
+
                 result_challenger['exit_time'] = int(result_challenger['start_attention']) + td
-        
+                result_challenger['waiting_time'] = int(result_challenger['start_attention']) - int(result_challenger['arrival_time'])
+
+        # Si se escoge un algoritmo probabilistico
         else:
             
             successNonDeterministic = False
@@ -89,23 +104,38 @@ def QueensSimulation(request):
             if counter_r == 1:
                 result_challenger['exit_time'] = tnd
                 result_challenger['start_attention'] = 0
+                result_challenger['waiting_time'] = 0
+                result_challenger['max_queue'] = 0
+
             else:
-                result_challenger['start_attention'] = int(matrixResult[counter_r-2]['exit_time']) + 1
+                start_attention = int(matrixResult[counter_r-2]['exit_time']) + 1
+
+                if start_attention < result_challenger['arrival_time']:
+                    result_challenger['start_attention'] = result_challenger['arrival_time']
+                else:
+                    result_challenger['start_attention'] = int(matrixResult[counter_r-2]['exit_time']) + 1
+
                 result_challenger['exit_time'] = int(result_challenger['start_attention']) + tnd
+                result_challenger['waiting_time'] = int(result_challenger['start_attention']) - int(result_challenger['arrival_time'])
 
             print tnd
 
         matrixResult.append(result_challenger)
 
-        print "Contador de retadores >> "
-        print counter_r
+        #print "Contador de retadores >> "
+        #print counter_r
 
-    print "Matriz de resultados >> "
-    print matrixResult
+    #print "Matriz de resultados >> "
+    #print matrixResult
 
-    json_matrix = json.dumps(matrixResult)
+    performance_rates = calculate_performance_simulation(matrixResult, r)
 
-    return HttpResponse(json_matrix, content_type="application/json")
+    result_simulation['performance_rates'] = performance_rates
+    result_simulation['matrix_result'] = matrixResult
+
+    json_result = json.dumps(result_simulation)
+
+    return HttpResponse(json_result, content_type="application/json")
 
 #  Método que calcula la posición de n-reinas de forma determinística
 #  Método que calcula la posición de n-reinas de forma determinística
@@ -199,4 +229,23 @@ def SelectAlgorithm():
     else:
         return 'P'
 
+def calculate_performance_simulation(matrix_result, r):
 
+    performance = {}
+    sum_time_queue = 0
+    sum_time_master = 0
+
+    for i in range(len(matrix_result)):
+
+        sum_time_master = sum_time_master + matrix_result[i]['time']
+
+        if i != 0:
+            sum_time_queue = sum_time_queue + matrix_result[i]['waiting_time']
+
+    av_time_queue = sum_time_queue/r
+    av_master = sum_time_master/r
+    
+    performance['av_time_queue'] = av_time_queue
+    performance['av_master'] = av_master
+
+    return performance
